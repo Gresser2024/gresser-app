@@ -1,0 +1,14 @@
+.employee-item {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+  }
+  
+  .employee-item.carpenter { color: blue; }
+  .employee-item.bricklayer { color: red; }
+  .employee-item.cement-mason { color: green; }
+  .employee-item.laborer { color: black; }
+  .employee-item.operator { color: purple; }
+  .employee-item.superintendent { color: pink; }
+  .employee-item.shop-trucking { color: orange; }
+  .employee-item.default { color: #333; }

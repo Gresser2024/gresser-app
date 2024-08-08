@@ -1,0 +1,60 @@
+.nav {
+  /* flex box layout */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  /* margin: 0 0 0px; */
+  background-color: #363636;
+
+  overflow: hidden;
+  
+}
+
+.nav a {
+  text-decoration: none;
+}
+
+/* .nav-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #f2f2f2;
+  padding-left: 10px;
+  margin: 0;
+} */
+
+.navLink {
+  display: inline-block;
+  color: #f2f2f2;
+  background-color: #363636;
+  text-align: center;
+  padding: 40px 60px;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 900;
+  
+
+  /* these last two make the logout button in
+  the nav bar look like another link */
+  border: none;
+  cursor: pointer;
+  outline: 0;
+}
+
+.navLink:hover {
+  background-color: #396a54;
+  color: white;
+  /* background-color: #349; */
+
+}
+
+img,.DaveLogo{
+  height: 125px;
+  width: 200px; 
+  margin-left: 25px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+
+}
+
+

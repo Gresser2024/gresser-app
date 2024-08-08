@@ -1,0 +1,33 @@
+.report-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.report-content {
+  text-align: center;
+}
+
+.report-table {
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+
+.report-table td {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+}
+
+.report-table td:first-child {
+  font-weight: bold;
+}
+
+.jobhistory_title {
+  font-size:xx-large;
+  font-weight: 700;
+  margin-top: 25px;
+}
+
+.reports-btn{
+font-weight: 700;
+}
