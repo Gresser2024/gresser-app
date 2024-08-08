@@ -22,7 +22,7 @@ import UserPage from '../UserPage/UserPage';
 import InfoPage from '../InfoPage/InfoPage';
 import LandingPage from '../LandingPage/LandingPage';
 import LoginPage from '../LoginPage/LoginPage';
-import RegisterPage from '../RegisterPage/RegisterPage';
+// import RegisterPage from '../RegisterPage/RegisterPage';
 import AddEmployee from '../AddEmployee/AddEmployee';
 import EditEmployee from '../AddEmployee/EditAddEmployee';
 import CreateJobs from '../CreateJobs/CreateJobs';
@@ -76,9 +76,9 @@ function App() {
             {user.id ? <Redirect to="/user" /> : <LoginPage />}
           </Route>
 
-          <Route exact path="/registration">
+{/*           <Route exact path="/registration">
             {user.id ? <Redirect to="/user" /> : <RegisterPage />}
-          </Route>
+          </Route> */}
 
           <Route exact path="/home">
             {user.id ? <Redirect to="/user" /> : <LandingPage />}
