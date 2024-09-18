@@ -21,7 +21,7 @@ const Scheduling = () => {
 
   return (
     <div className="scheduling-container">
-      <div>
+      {/* <div>
         <h3>Employees</h3>
         <div className="employee-list">
           {employeeCard.map((employee) => (
@@ -37,7 +37,7 @@ const Scheduling = () => {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
 
       <div>
         {/* <h3>Jobs</h3> */}

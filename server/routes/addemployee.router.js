@@ -3,12 +3,13 @@ const pool = require('../modules/pool');
 const router = express.Router();
 const { rejectUnauthenticated } = require('../modules/authentication-middleware');
 
-
+// Route to get all employees and unions
 router.get('/', async (req, res) => {
     if (req.isAuthenticated()) {
         console.log('User is authenticated?:', req.isAuthenticated());
         console.log("Current user is: ", req.user.username);
-        
+
+        // sql query to fetch all employees and their union information
         const sqlText = `
             SELECT ae.*, u.union_name 
             FROM "add_employee" ae
@@ -38,8 +39,9 @@ router.get('/employeecard', async (req, res) => {
         
         const notAssigned = req.query === "true";
         console.log(`Filter for employees without jobs: ${req.query.notAssigned}`);
-                
+        //if notAssigned is true       
         if (notAssigned){
+            // sql query to select employee
         const sqlText =
         `
             SELECT "id", "first_name", "last_name", "email", "address", "phone_number"
@@ -54,7 +56,9 @@ router.get('/employeecard', async (req, res) => {
             console.log("Error updating employee status", error);
             res.sendStatus(500);
         }
+        // if notAssigned is not true, 
         } else {
+            // query to select  employees who do not have an assigned job
             const queryText = `
             SELECT "id", "first_name", "last_name", "email", "address", "phone_number"
             FROM "add_employee"
@@ -99,9 +103,10 @@ router.get('/union', async (req, res) => {
     }
 });
 
-
+//Get endpt to to get unions and employees
 router.get('/withunions', async (req, res) => {
     try {
+        // query to select union details and employee information within union
         const sqlText = `
             SELECT 
                 unions.id AS union_id,
@@ -115,20 +120,23 @@ router.get('/withunions', async (req, res) => {
         `;
         
         const result = await pool.query(sqlText);
-        
+        // created a variable to store an object for the unions and thir employees
         const unions = {};
         
+        //Iterate over each row 
         result.rows.forEach(row => {
-          
+          //check if the union already exist in the unions object.
             if (!unions[row.union_id]) {
+                // if not, create a new entry for the union.
                 unions[row.union_id] = {
+                    // store the union id, union name and created an empty array for employees 
                     id: row.union_id,
                     union_name: row.union_name,
                     employees: []
                 };
             }
             
-            
+            // if the row contains an employee ID, add employee details 
             if (row.employee_id) {
                 unions[row.union_id].employees.push({
                     id: row.employee_id,
@@ -138,7 +146,7 @@ router.get('/withunions', async (req, res) => {
             }
         });
         
-       
+       // send the result as an array of unions with employees to the client 
         res.send(Object.values(unions));
     } catch (error) {
         console.error('Error fetching unions with employees:', error);
@@ -146,16 +154,17 @@ router.get('/withunions', async (req, res) => {
     }
 });
 
-
+// poset endpoint- allows users to create new union and employee history
 router.post('/', rejectUnauthenticated, async (req, res) => {
     console.log('User is authenticated?:', req.isAuthenticated());
     console.log('Current user is:', req.user.username);
     console.log('Current request body is:', req.body);
 
+    // destructuring request body
     const { first_name, last_name, employee_number, union_name, employee_status, phone_number, email, address, job_id } = req.body;
 
     try {
-        
+        // query to insert a new union into the unions table
         const insertUnionQuery = `
             INSERT INTO "unions" ("union_name")
             VALUES ($1)
@@ -165,7 +174,7 @@ router.post('/', rejectUnauthenticated, async (req, res) => {
         const unionResult = await pool.query(insertUnionQuery, unionValues);
         const unionId = unionResult.rows[0].id;
 
-      
+      //query inserts a new employee into the ass_employee table
         const insertEmployeeQuery = `
             INSERT INTO "add_employee" (
                 "first_name", "last_name", "employee_number", "employee_status", "phone_number", "email", "address", "job_id", "union_id"
@@ -182,7 +191,7 @@ router.post('/', rejectUnauthenticated, async (req, res) => {
     }
 });
 
-
+// PUT endpt to update an employees details
 router.put('/:id', async (req, res) => {
     const employeeId = req.params.id;
     console.log("employee id", employeeId);
