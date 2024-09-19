@@ -1,28 +1,25 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
 
-
-const Employee = ({ id, name, number, email, address }) => {
+const Employee = ({ id, name, number, email, address, nameColor, unionId }) => {
   console.log('Employee ID:', id);
   console.log('Employee Name:', name);
-  console.log('Employee number', number)
-  console.log('Employee email', email)
-  console.log('Employee address', address)
-
-
+  console.log('Employee number', number);
+  console.log('Employee email', email);
+  console.log('Employee address', address);
+  console.log('Employee unionId', unionId);
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'EMPLOYEE',
-    item: { id: id },
+    item: { id: id, unionId: unionId },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
   }));
 
-// Unique ID for each modal
+  // Unique ID for each modal
   const modalId = `employee-modal-${id}`; 
 
- 
   return (
     <div
       ref={drag}
@@ -30,19 +27,18 @@ const Employee = ({ id, name, number, email, address }) => {
         opacity: isDragging ? 0.5 : 1,
         padding: '1px',
         margin: '-8px 0 0 2px',
-        // border: '1px solid white',
         cursor: 'move',
-        // backgroundColor: 'white',
         borderRadius: '4px',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
       }}
     >
- <h6
+      <h6
         className="primary"
         data-toggle="modal"
         data-target={`#${modalId}`}
+        style={{ color: nameColor }}
       >
         {name}
       </h6>
@@ -60,6 +56,7 @@ const Employee = ({ id, name, number, email, address }) => {
               <p>Email: {email}</p>
               <p>Number: {number}</p>
               <p>Address: {address}</p>
+              <p>Union ID: {unionId}</p>
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>

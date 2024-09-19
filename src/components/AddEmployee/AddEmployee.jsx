@@ -11,7 +11,7 @@ const AddEmployee = () => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [employeeNumber, setEmployeeNumber] = useState('');
-    const [unionName, setUnionName] = useState(''); 
+    const [unionId, setUnionId] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [email, setEmail] = useState('');
     const [address, setAddress] = useState('');
@@ -28,7 +28,7 @@ const AddEmployee = () => {
             first_name: firstName,
             last_name: lastName,
             employee_number: employeeNumber,
-            union_name: unionName,
+            union_id: unionId,
             phone_number: phoneNumber,
             email,
             address
@@ -38,7 +38,7 @@ const AddEmployee = () => {
         setFirstName('');
         setLastName('');
         setEmployeeNumber('');
-        setUnionName('');
+        setUnionId('');
         setPhoneNumber('');
         setEmail('');
         setAddress('');
@@ -54,7 +54,7 @@ const AddEmployee = () => {
             firstName: 'Emily',
             lastName: 'Smith',
             employeeNumber: 'A12345',
-            unionName: '25 - Carpenters',
+            unionId: '21',
             phoneNumber: '(555) 678-1234',
             email: 'emily.smith@company.com',
             address: '456 Elm Street, Springfield, IL'
@@ -63,7 +63,7 @@ const AddEmployee = () => {
         setFirstName(dummyData.firstName);
         setLastName(dummyData.lastName);
         setEmployeeNumber(dummyData.employeeNumber);
-        setUnionName(dummyData.unionName);
+        setUnionId(dummyData.unionId);
         setPhoneNumber(dummyData.phoneNumber);
         setEmail(dummyData.email);
         setAddress(dummyData.address);
@@ -74,7 +74,7 @@ const AddEmployee = () => {
                 first_name: dummyData.firstName,
                 last_name: dummyData.lastName,
                 employee_number: dummyData.employeeNumber,
-                union_name: dummyData.unionName,
+                union_id: dummyData.unionId,
                 phone_number: dummyData.phoneNumber,
                 email: dummyData.email,
                 address: dummyData.address
@@ -109,26 +109,20 @@ const AddEmployee = () => {
                     value={employeeNumber}
                     onChange={(event) => setEmployeeNumber(event.target.value)}
                 />
-
-            {/* <label htmlFor="union_name">Select Union:</label> */}
-            <select
-                id="union_name"
-                name="union_name"
-                value={unionName}
-                onChange={(event) => setUnionName(event.target.value)}
-            >
-                <option value="" disabled>Select a union</option>
-                <option value="21 - Bricklayers">21 - Bricklayers</option>
-                <option value="22 - Cement Masons/Finishers">22 - Cement Masons/Finishers</option>
-                <option value="23 - Laborers">23 - Laborers</option>
-                <option value="24 - Operators">24 - Operators</option>
-                <option value="25 - Carpenters">25 - Carpenters</option>
-            </select>
-        </div>
-
-
-
-
+                <select
+                    id="union_id"
+                    name="union_id"
+                    value={unionId}
+                    onChange={(event) => setUnionId(event.target.value)}
+                >
+                    <option value="" disabled>Select a union</option>
+                    <option value="21">21 - Bricklayers</option>
+                    <option value="22">22 - Cement Masons/Finishers</option>
+                    <option value="23">23 - Laborers</option>
+                    <option value="24">24 - Operators</option>
+                    <option value="25">25 - Carpenters</option>
+                </select>
+                </div>
                 <input
                     type="text"
                     name="phone_number"
@@ -160,11 +154,7 @@ const AddEmployee = () => {
                         <th>First Name</th>
                         <th>Employee Number</th>
                         <th>Union</th>
-
-
                         <th>Status</th>
-
-
                         <th>Phone Number</th>
                         <th>Email</th>
                         <th>Address</th>

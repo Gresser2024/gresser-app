@@ -1,23 +1,19 @@
 import React from 'react';
 import { useDrop } from 'react-dnd';
-import Employee from './Employee';
+import Employee from '../Scheduling/Employee';  // Adjust this import path as necessary
 import '../Trades/Box.css'
 
-const ProjectBox = ({ id, employees, moveEmployee, job_name }) => {
-  console.log('Id in job box:', id)
-  console.log("Employees in JobBox component:", employees)
-  console.log("job_name", job_name)
-
+const UnionBox = ({ id, union_name, employees, moveEmployee }) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'EMPLOYEE',
-    drop: (item) => {
-      console.log('Dropped item:', item);
-      moveEmployee(item.id, id, item.unionId);
-    },
+    drop: (item) => moveEmployee(item.id, item.sourceId, id, item.sourceType, 'union'),
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
     }),
   }));
+
+  // Ensure employees is an array, if not, default to an empty array
+  const safeEmployees = Array.isArray(employees) ? employees : [];
 
   return (
     <div
@@ -31,28 +27,25 @@ const ProjectBox = ({ id, employees, moveEmployee, job_name }) => {
         backgroundColor: isOver ? 'lightgray' : 'white',
       }}
     >
-      <h4 className='projectboxname'>{job_name}</h4>
+      <h4 className='unionboxname'>{union_name}</h4>
       <hr className='namelinebreak'/>
-      {employees.length === 0 ? (
+      {safeEmployees.length === 0 ? (
         <p>No employees assigned</p>
       ) : (
-        employees.map(employee => (
+        safeEmployees.map(employee => (
           <Employee
             key={employee.id}
             id={employee.id}
             name={`${employee.first_name} ${employee.last_name}`}
-            number={`${employee.phone_number}`}
-            email={`${employee.email}`}
-            address={`${employee.address}`}
-            nameColor={employee.nameColor}
-            unionId={employee.union_id}
+            sourceType="union"
+            sourceId={id}
           />
         ))
       )}
       <hr className='breakline'/>
-      <h6 className='employee-count'>Employees: {employees.length}</h6>
+      <h6 className='employee-count'>Employees: {safeEmployees.length}</h6>
     </div>
   );
 };
 
-export default ProjectBox;
+export default UnionBox;

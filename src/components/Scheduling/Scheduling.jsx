@@ -5,6 +5,29 @@ import Employee from './Employee';
 import './EmployeeStyles.css';
 import './Scheduling.css';
 
+const getEmployeeColor = (unionName) => {
+  if (!unionName) return 'inherit';
+  
+  const colorMap = {
+    'Carpenters': 'blue',
+    'Bricklayers': 'red',
+    'Cement Masons': 'green',
+    'Laborers': 'black',
+    'Operators': 'purple',
+    'Superintendents': 'pink',
+    'Shop/Trucking': 'orange'
+  };
+
+  const lowerUnionName = unionName.toLowerCase();
+  for (const [key, value] of Object.entries(colorMap)) {
+    if (lowerUnionName.includes(key.toLowerCase())) {
+      return value;
+    }
+  }
+
+  return 'inherit';
+};
+
 const Scheduling = () => {
   const dispatch = useDispatch();
   const employeeCard = useSelector((state) => state.cardReducer);
@@ -22,33 +45,9 @@ const Scheduling = () => {
   return (
     <div className="scheduling-container">
       <div>
-        <h3>Employees</h3>
-        <div className="employee-list">
-          {employeeCard.map((employee) => (
-            <div key={employee.id} className="employee-item">
-              <Employee
-                id={employee.id}
-                name={`${employee.first_name} ${employee.last_name}`}
-                number={employee.phone_number}
-                email={employee.email}
-                address={employee.address}
-                unionName={employee.union_name}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        {/* <h3>Jobs</h3> */}
+        <h3>Jobs</h3>
         {!jobsBox || jobsBox.length === 0 || !Array.isArray(jobsBox) ? (
-          <table className="no-jobs-table">
-            <tbody>
-              <tr>
-                <td colSpan="7">YOU HAVE NO JOBS</td>
-              </tr>
-            </tbody>
-          </table>
+          <div className="no-jobs-message">YOU HAVE NO JOBS</div>
         ) : (
           <div className="jobs-container">
             {jobsBox.map((job) => (
@@ -56,7 +55,10 @@ const Scheduling = () => {
                 <ProjectBox
                   id={job.id}
                   job_name={job.job_name}
-                  employees={job.employees}
+                  employees={job.employees.map(employee => ({
+                    ...employee,
+                    nameColor: getEmployeeColor(employee.union_name)
+                  }))}
                   moveEmployee={moveEmployee}
                 />
               </div>
