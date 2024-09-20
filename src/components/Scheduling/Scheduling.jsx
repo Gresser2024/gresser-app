@@ -1,13 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import ProjectBox from './ProjectBox';
-import Employee from './Employee';
 import './EmployeeStyles.css';
 import './Scheduling.css';
 
 const getEmployeeColor = (unionName) => {
   if (!unionName) return 'inherit';
-  
+
   const colorMap = {
     'Carpenters': 'blue',
     'Bricklayers': 'red',
@@ -30,17 +29,35 @@ const getEmployeeColor = (unionName) => {
 
 const Scheduling = () => {
   const dispatch = useDispatch();
-  const employeeCard = useSelector((state) => state.cardReducer);
   const jobsBox = useSelector((state) => state.jobReducer);
+  const [updateTrigger, setUpdateTrigger] = useState(0);
 
-  useEffect(() => {
+  
+  const fetchData = useCallback(() => {
+    console.log('Fetching latest data...');
     dispatch({ type: 'FETCH_EMPLOYEE_CARD' });
     dispatch({ type: 'FETCH_PROJECTS_WITH_EMPLOYEES' });
   }, [dispatch]);
 
-  const moveEmployee = (employeeId, targetProjectId) => {
-    dispatch({ type: 'MOVE_EMPLOYEE', payload: { employeeId, targetProjectId } });
-  };
+  useEffect(() => {
+    fetchData();
+  }, [fetchData, updateTrigger]);
+
+  // This function handles moving an employee and automatically triggers a refresh
+  const moveEmployee = useCallback((employeeId, targetProjectId, sourceProjectId, sourceUnionId) => {
+    console.log('moveEmployee called with:', { employeeId, targetProjectId, sourceProjectId, sourceUnionId });
+
+    // Dispatch the movement action based on direction of movement
+    dispatch({
+      type: 'MOVE_EMPLOYEE',
+      payload: { employeeId, targetProjectId, sourceProjectId, sourceUnionId }
+    });
+
+    // Trigger an update after moving an employee
+    setUpdateTrigger(prev => prev + 1);
+  }, [dispatch]);
+
+  console.log('Current jobsBox state:', jobsBox);
 
   return (
     <div className="scheduling-container">

@@ -39,16 +39,21 @@ export function* fetchProjectsWithEmployees() {
 
 export function* handleMoveEmployee(action) {
   try {
-    const { employeeId, targetProjectId, unionId } = action.payload;
-    yield call(axios.post, '/api/moveEmployee', { employeeId, targetProjectId });
-    if (unionId) {
-      yield call(axios.put, `/api/addemployee/${employeeId}/removeFromUnion`);
-    }
-    yield put({ type: 'UPDATE_JOB_EMPLOYEES', payload: { employeeId, targetProjectId } });
-    yield put({ type: 'REMOVE_EMPLOYEE_FROM_UNION', payload: { employeeId, unionId } });
-    yield put({ type: 'FETCH_PROJECTS_WITH_EMPLOYEES' });
-    yield put({ type: 'FETCH_UNIONS_WITH_EMPLOYEES' });
-    yield put({ type: 'FETCH_EMPLOYEE_CARD' });
+    const { employeeId, targetProjectId, sourceProjectId, sourceUnionId } = action.payload;
+    
+    // Make the API call to move the employee
+    yield call(axios.post, '/api/moveEmployee', { employeeId, targetProjectId, sourceProjectId, sourceUnionId });
+
+    // Update Redux store directly
+    yield put({ 
+      type: 'UPDATE_EMPLOYEE_POSITION', 
+      payload: { employeeId, targetProjectId, sourceProjectId, sourceUnionId } 
+    });
+
+    // We don't need to fetch all data again, as we've already updated the store
+    // If you want to ensure data consistency, you can keep these, but they might not be necessary
+    // yield put({ type: 'FETCH_PROJECTS_WITH_EMPLOYEES' });
+    // yield put({ type: 'FETCH_UNIONS_WITH_EMPLOYEES' });
   } catch (error) {
     console.error('Error moving employee:', error);
     yield put({ type: 'MOVE_EMPLOYEE_FAILURE', error }); 

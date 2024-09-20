@@ -4,20 +4,28 @@ import Employee from './Employee';
 import '../Trades/Box.css'
 
 const ProjectBox = ({ id, employees, moveEmployee, job_name }) => {
-  console.log('Id in job box:', id)
-  console.log("Employees in JobBox component:", employees)
-  console.log("job_name", job_name)
+  console.log('ProjectBox rendered with id:', id);
+  console.log("Employees in ProjectBox:", employees);
+  console.log("job_name:", job_name);
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'EMPLOYEE',
-    drop: (item) => {
-      console.log('Dropped item:', item);
-      moveEmployee(item.id, id, item.unionId);
+    drop: (item, monitor) => {
+      console.log('Item dropped:', item);
+      console.log('Drop result:', monitor.getDropResult());
+      console.log('Is over current:', monitor.isOver({ shallow: true }));
+      moveEmployee(item.id, id, item.sourceProjectId, item.unionId);
+    },
+    hover: (item, monitor) => {
+      console.log('Hover detected:', item);
+      console.log('Is over current:', monitor.isOver({ shallow: true }));
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
     }),
-  }));
+  }), [id, moveEmployee]);
+
+  console.log('Is over:', isOver);
 
   return (
     <div
@@ -46,6 +54,7 @@ const ProjectBox = ({ id, employees, moveEmployee, job_name }) => {
             address={`${employee.address}`}
             nameColor={employee.nameColor}
             unionId={employee.union_id}
+            sourceProjectId={id}
           />
         ))
       )}

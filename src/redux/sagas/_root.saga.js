@@ -1,23 +1,34 @@
-import { all } from 'redux-saga/effects';
+import { all, takeLatest } from 'redux-saga/effects';
 import loginSaga from './login.saga';
 import registrationSaga from './registration.saga';
 import userSaga from './user.saga';
-import fetchEmployeeInfo from './employee.saga';
 import jobSaga from './job.saga';
+import {
+  fetchEmployeeInfo,
+  addEmployeeInfo,
+  fetchEmployeeCard,
+  fetchProjectsWithEmployees,
+  handleMoveEmployee,
+  statusToggle,
+  fetchEmployeeUnion,
+  fetchUnionsWithEmployees,
+  removeEmployeeFromUnion
+} from './employee.saga';
 
-// rootSaga is the primary saga.
-// It bundles up all of the other sagas so our project can use them.
-// This is imported in index.js as rootSaga
-
-// some sagas trigger other sagas, as an example
-// the registration triggers a login
-// and login triggers setting the user
 export default function* rootSaga() {
   yield all([
-    loginSaga(), // login saga is now registered
+    loginSaga(),
     registrationSaga(),
     userSaga(),
-    fetchEmployeeInfo(),
-    jobSaga()
+    jobSaga(),
+    takeLatest('FETCH_EMPLOYEE_INFO', fetchEmployeeInfo),
+    takeLatest('ADD_EMPLOYEE_INFO', addEmployeeInfo),
+    takeLatest('FETCH_EMPLOYEE_CARD', fetchEmployeeCard),
+    takeLatest('FETCH_PROJECTS_WITH_EMPLOYEES', fetchProjectsWithEmployees),
+    takeLatest('MOVE_EMPLOYEE', handleMoveEmployee),
+    takeLatest('EMPLOYEE_TOGGLE_STATUS', statusToggle),
+    takeLatest('FETCH_EMPLOYEE_UNION', fetchEmployeeUnion),
+    takeLatest('FETCH_UNIONS_WITH_EMPLOYEES', fetchUnionsWithEmployees),
+    takeLatest('REMOVE_EMPLOYEE_FROM_UNION', removeEmployeeFromUnion),
   ]);
 }
