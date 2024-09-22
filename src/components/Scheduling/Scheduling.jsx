@@ -23,20 +23,7 @@ const Scheduling = () => {
     <div className="scheduling-container">
       <div>
         <h3>Employees</h3>
-        <div className="employee-list">
-          {employeeCard.map((employee) => (
-            <div key={employee.id} className="employee-item">
-              <Employee
-                id={employee.id}
-                name={`${employee.first_name} ${employee.last_name}`}
-                number={employee.phone_number}
-                email={employee.email}
-                address={employee.address}
-                unionName={employee.union_name}
-              />
-            </div>
-          ))}
-        </div>
+       
       </div>
 
       <div>
