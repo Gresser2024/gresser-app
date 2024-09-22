@@ -5,24 +5,35 @@ import { useDispatch, useSelector } from 'react-redux';
 import '../Trades/Box.css'
 
 
-const ProjectBox = ({ id, employees,moveEmployee, job_name }) => {
-  console.log('Id in job box:', id)
-  console.log("Employees in JobBox component:", employees)
-  console.log("job_name", job_name)
+const ProjectBox = ({ id, employees, job_name }) => {
+  const dispatch = useDispatch();
+  const employeeCount = employees.length;
 
+  // console.log('Id in job box:', id)
+  // console.log("Employees in JobBox component:", employees)
+  // console.log("job_name", job_name)
+  // console.log("project box - moveEmployee",moveEmployee);
 
-  const [{ isOver }, drop] = useDrop(() => ({
+  const moveEmployee = (employeeId, targetProjectId) => {
+    dispatch({
+        type: 'MOVE_EMPLOYEE',
+        payload: { id: employeeId, targetProjectId },
+    });
+};
+
+const [{ isOver }, drop] = useDrop(() => ({
     accept: 'EMPLOYEE',
     drop: (item) => {
-      console.log('Dropped item:', item);
-      moveEmployee(item.id, id);
+        moveEmployee(item.id, id);
+        
     },
     collect: (monitor) => ({
-      isOver: !!monitor.isOver(),
+        isOver: !!monitor.isOver(),
+        
     }),
-  }));
+}));
 
-  const employeeCount = employees.length;
+  // const employeeCount = employees.length;
 
 
   return (
@@ -52,6 +63,7 @@ const ProjectBox = ({ id, employees,moveEmployee, job_name }) => {
             number={`${employee.phone_number}`}
             email={`${employee.email}`}
             address={`${employee.address}`} />
+           
         ))
       )}
       <hr className='breakline'/>

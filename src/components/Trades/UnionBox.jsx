@@ -1,21 +1,36 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
 import { useDrop } from 'react-dnd';
 import Employee from '../Scheduling/Employee';
 import './Box.css';
 
-const UnionBox = ({ id, employees, moveEmployee, union_name, color }) => {
-  console.log('NAME in union box:', union_name);
-  console.log('id in union box', id);
+const UnionBox = ({ id, employees, union_name, color }) => {
+  // console.log('NAME in union box:', union_name);
+  // console.log('id in union box', id);
+  // console.log("employees", employees);
+  // console.log("what is the color", color);
+
+  const dispatch = useDispatch();
+
+  const moveEmployee = (employeeId, targetProjectId) => {
+    dispatch({
+      type: 'MOVE_EMPLOYEE',
+      payload: { id: employeeId, targetProjectId },
+      
+    });
+  };
+
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'EMPLOYEE',
     drop: (item) => {
-      console.log('Dropped item:', item);
       moveEmployee(item.id, id);
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
     }),
   }));
+
+
 
   return (
     <div
@@ -39,6 +54,10 @@ const UnionBox = ({ id, employees, moveEmployee, union_name, color }) => {
             key={employee.id}
             id={employee.id}
             name={`${employee.first_name} ${employee.last_name}`}
+            number={`${employee.phone_number}`}
+            email={`${employee.email}`}
+            address={`${employee.address}`}
+            
           />
         ))
       )}

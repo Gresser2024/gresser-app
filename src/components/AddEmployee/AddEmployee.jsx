@@ -118,11 +118,11 @@ const AddEmployee = () => {
                 onChange={(event) => setUnionName(event.target.value)}
             >
                 <option value="" disabled>Select a union</option>
-                <option value="21 - Bricklayers">21 - Bricklayers</option>
-                <option value="22 - Cement Masons/Finishers">22 - Cement Masons/Finishers</option>
-                <option value="23 - Laborers">23 - Laborers</option>
-                <option value="24 - Operators">24 - Operators</option>
-                <option value="25 - Carpenters">25 - Carpenters</option>
+                <option value="21 - Bricklayers">Bricklayers</option>
+                <option value="22 - Cement Masons/Finishers">Cement Masons/Finishers</option>
+                <option value="23 - Laborers">Laborers</option>
+                <option value="24 - Operators">Operators</option>
+                <option value="25 - Carpenters">Carpenters</option>
             </select>
         </div>
 

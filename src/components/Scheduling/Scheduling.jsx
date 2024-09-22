@@ -7,7 +7,7 @@ import './Scheduling.css';
 
 const Scheduling = () => {
   const dispatch = useDispatch();
-  const employeeCard = useSelector((state) => state.cardReducer);
+  const employee = useSelector((state) => state.addemployeeReducer);
   const jobsBox = useSelector((state) => state.jobReducer);
 
   useEffect(() => {
@@ -45,7 +45,7 @@ const Scheduling = () => {
           <table className="no-jobs-table">
             <tbody>
               <tr>
-                <td colSpan="7">YOU HAVE NO JOBS</td>
+                <td colSpan="7">YOU HAVE NO PROJECTS</td>
               </tr>
             </tbody>
           </table>
