@@ -14,6 +14,10 @@ const Trades = () => {
         dispatch({ type: 'FETCH_UNIONS_WITH_EMPLOYEES' });
     }, [dispatch]);
 
+    const moveEmployee = (employeeId, targetUnionId) => {
+        dispatch({ type: 'MOVE_EMPLOYEE', payload: { employeeId, targetUnionId } });
+    };
+
     return (
         <div className="trades-container">
             <h3 className='union-title'>Unions</h3>
@@ -25,6 +29,7 @@ const Trades = () => {
                             union_name={union.union_name}
                             employees={union.employees}
                             color={unionColors[union.union_name]} 
+                            moveEmployee={moveEmployee}
                         />
                     </div>
                 ))}
