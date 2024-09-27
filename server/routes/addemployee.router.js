@@ -155,17 +155,24 @@ router.post('/', rejectUnauthenticated, async (req, res) => {
     const { first_name, last_name, employee_number, union_name, employee_status, phone_number, email, address, job_id } = req.body;
 
     try {
-        
-        const insertUnionQuery = `
-            INSERT INTO "unions" ("union_name")
-            VALUES ($1)
-            RETURNING "id"
+        const checkUnionQuery = `
+            SELECT "id" FROM "unions" WHERE "union_name" = $1
         `;
-        const unionValues = [union_name];
-        const unionResult = await pool.query(insertUnionQuery, unionValues);
-        const unionId = unionResult.rows[0].id;
+        const unionCheckResult = await pool.query(checkUnionQuery, [union_name]);
+        
+        let unionId;
+        if (unionCheckResult.rows.length > 0) {
+            unionId = unionCheckResult.rows[0].id;
+        } else {
+            const insertUnionQuery = `
+                INSERT INTO "unions" ("union_name")
+                VALUES ($1)
+                RETURNING "id"
+            `;
+            const unionResult = await pool.query(insertUnionQuery, [union_name]);
+            unionId = unionResult.rows[0].id;
+        }
 
-      
         const insertEmployeeQuery = `
             INSERT INTO "add_employee" (
                 "first_name", "last_name", "employee_number", "employee_status", "phone_number", "email", "address", "job_id", "union_id"
@@ -207,7 +214,6 @@ router.put('/:id', async (req, res) => {
         !address &&
         !job_id &&
         !union_id) {
-        // update employee status only
         const queryText = `
             UPDATE "add_employee"
             SET "employee_status" = $1
@@ -222,7 +228,6 @@ router.put('/:id', async (req, res) => {
             res.sendStatus(500);
         }
     } else {
-        // update all employee details
         const values = [
             first_name,
             last_name,
@@ -262,7 +267,6 @@ router.put('/:id', async (req, res) => {
         }
     }
 });
-
 
 
 module.exports = router;
