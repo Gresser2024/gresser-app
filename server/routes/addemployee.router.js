@@ -108,7 +108,10 @@ router.get('/withunions', async (req, res) => {
                 unions.union_name AS union_name,
                 add_employee.id AS employee_id,
                 add_employee.first_name AS employee_first_name,
-                add_employee.last_name AS employee_last_name
+                add_employee.last_name AS employee_last_name,
+                add_employee.phone_number AS employee_phone_number,
+                add_employee.email AS employee_email,
+                add_employee.address AS employee_address
             FROM unions
             LEFT JOIN add_employee ON unions.id = add_employee.union_id
             ORDER BY unions.union_name, add_employee.id;
@@ -133,7 +136,11 @@ router.get('/withunions', async (req, res) => {
                 unions[row.union_id].employees.push({
                     id: row.employee_id,
                     first_name: row.employee_first_name,
-                    last_name: row.employee_last_name
+                    last_name: row.employee_last_name,
+                    phone_number: row.employee_phone_number,
+                    email: row.employee_email,
+                    address: row.employee_address
+                
                 });
             }
         });
