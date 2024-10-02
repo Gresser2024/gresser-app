@@ -108,7 +108,10 @@ router.get('/withunions', async (req, res) => {
                 unions.union_name AS union_name,
                 add_employee.id AS employee_id,
                 add_employee.first_name AS employee_first_name,
-                add_employee.last_name AS employee_last_name
+                add_employee.last_name AS employee_last_name,
+                add_employee.phone_number AS employee_phone_number,
+                add_employee.email AS employee_email,
+                add_employee.address AS employee_address
             FROM unions
             LEFT JOIN add_employee ON unions.id = add_employee.union_id
             ORDER BY unions.union_name, add_employee.id;
@@ -133,7 +136,11 @@ router.get('/withunions', async (req, res) => {
                 unions[row.union_id].employees.push({
                     id: row.employee_id,
                     first_name: row.employee_first_name,
-                    last_name: row.employee_last_name
+                    last_name: row.employee_last_name,
+                    phone_number: row.employee_phone_number,
+                    email: row.employee_email,
+                    address: row.employee_address
+                
                 });
             }
         });
@@ -155,17 +162,24 @@ router.post('/', rejectUnauthenticated, async (req, res) => {
     const { first_name, last_name, employee_number, union_name, employee_status, phone_number, email, address, job_id } = req.body;
 
     try {
-        
-        const insertUnionQuery = `
-            INSERT INTO "unions" ("union_name")
-            VALUES ($1)
-            RETURNING "id"
+        const checkUnionQuery = `
+            SELECT "id" FROM "unions" WHERE "union_name" = $1
         `;
-        const unionValues = [union_name];
-        const unionResult = await pool.query(insertUnionQuery, unionValues);
-        const unionId = unionResult.rows[0].id;
+        const unionCheckResult = await pool.query(checkUnionQuery, [union_name]);
+        
+        let unionId;
+        if (unionCheckResult.rows.length > 0) {
+            unionId = unionCheckResult.rows[0].id;
+        } else {
+            const insertUnionQuery = `
+                INSERT INTO "unions" ("union_name")
+                VALUES ($1)
+                RETURNING "id"
+            `;
+            const unionResult = await pool.query(insertUnionQuery, [union_name]);
+            unionId = unionResult.rows[0].id;
+        }
 
-      
         const insertEmployeeQuery = `
             INSERT INTO "add_employee" (
                 "first_name", "last_name", "employee_number", "employee_status", "phone_number", "email", "address", "job_id", "union_id"
@@ -207,7 +221,6 @@ router.put('/:id', async (req, res) => {
         !address &&
         !job_id &&
         !union_id) {
-        // update employee status only
         const queryText = `
             UPDATE "add_employee"
             SET "employee_status" = $1
@@ -222,7 +235,6 @@ router.put('/:id', async (req, res) => {
             res.sendStatus(500);
         }
     } else {
-        // update all employee details
         const values = [
             first_name,
             last_name,
@@ -262,7 +274,6 @@ router.put('/:id', async (req, res) => {
         }
     }
 });
-
 
 
 module.exports = router;
