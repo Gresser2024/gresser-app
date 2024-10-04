@@ -31,7 +31,7 @@ const ProjectBox = ({ id, employees = [], moveEmployee, job_name }) => {
         backgroundColor: isOver ? 'lightgray' : 'white',
       }}
     >
-      <h4 className='projectboxname'>{job_name}</h4>
+      <h4 className='projectboxname' style={{ backgroundColor: '#396a54', color: 'white', padding: '5px' }}>{job_name}</h4>
       <hr className='namelinebreak'/>
       {employees.length === 0 ? (
         <p>No employees assigned</p>
