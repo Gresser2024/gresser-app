@@ -1,21 +1,25 @@
 import React from 'react';
 import { useDrop } from 'react-dnd';
 import Employee from './Employee';
-import { useDispatch, useSelector } from 'react-redux';
-import '../Trades/Box.css'
+import { useDispatch } from 'react-redux';
+import '../Trades/Box.css';
 
+const ProjectBox = ({ id, employees, job_name }) => {
+  const dispatch = useDispatch(); // Get the dispatch function
 
-const ProjectBox = ({ id, employees,moveEmployee, job_name }) => {
-  console.log('Id in job box:', id)
-  console.log("Employees in JobBox component:", employees)
-  console.log("job_name", job_name)
-
+  const moveEmployee = (employeeId, targetProjectId, targetUnionId) => ({
+    type: 'MOVE_EMPLOYEE',
+    payload: { employeeId, targetProjectId, targetUnionId }
+  });
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'EMPLOYEE',
     drop: (item) => {
       console.log('Dropped item:', item);
-      moveEmployee(item.id, id);
+
+    
+      // Dispatch the moveEmployee action when an employee is dropped
+      dispatch(moveEmployee(item.id, id, null)); // Sending targetProjectId and null for targetUnionId
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
@@ -24,26 +28,26 @@ const ProjectBox = ({ id, employees,moveEmployee, job_name }) => {
 
   const employeeCount = employees.length;
 
-
   return (
     <div
       ref={drop}
       style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
         border: '1px solid gray',
         width: '170px',
         minHeight: '100px',
         margin: '-5px',
         padding: '5px',
-        backgroundColor: isOver ? 'white' : 'white',
+        backgroundColor: isOver ? 'lightgray' : 'white',
       }}
     >
-
       <h4 className='projectboxname'>{job_name}</h4>
       <hr className='namelinebreak'/>
       {employees.length === 0 ? (
         <p>No employees assigned</p>
       ) : (
-
         employees.map(employee => (
           <Employee
             key={employee.id}
@@ -54,12 +58,9 @@ const ProjectBox = ({ id, employees,moveEmployee, job_name }) => {
             address={`${employee.address}`} />
         ))
       )}
-      <hr className='breakline'/>
-        <h6 className='employee-count'>Employees: {employeeCount}</h6>
+      <h6 className='employee-count'>Employees: {employeeCount}</h6>
     </div>
-    
   );
 };
-
 
 export default ProjectBox;
