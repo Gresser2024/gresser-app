@@ -1,32 +1,23 @@
 import React from 'react';
 import { useDrop } from 'react-dnd';
 import Employee from './Employee';
-import { useDispatch } from 'react-redux';
-import '../Trades/Box.css';
+import '../Trades/Box.css'
 
-const ProjectBox = ({ id, employees, job_name }) => {
-  const dispatch = useDispatch(); // Get the dispatch function
-
-  const moveEmployee = (employeeId, targetProjectId, targetUnionId) => ({
-    type: 'MOVE_EMPLOYEE',
-    payload: { employeeId, targetProjectId, targetUnionId }
-  });
+const ProjectBox = ({ id, employees = [], moveEmployee, job_name }) => {
+  console.log('Id in job box:', id)
+  console.log("Employees in JobBox component:", employees)
+  console.log("job_name", job_name)
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'EMPLOYEE',
     drop: (item) => {
       console.log('Dropped item:', item);
-
-    
-      // Dispatch the moveEmployee action when an employee is dropped
-      dispatch(moveEmployee(item.id, id, null)); // Sending targetProjectId and null for targetUnionId
+      moveEmployee(item.id, id);
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
     }),
   }));
-
-  const employeeCount = employees.length;
 
   return (
     <div
@@ -43,7 +34,7 @@ const ProjectBox = ({ id, employees, job_name }) => {
         backgroundColor: isOver ? 'lightgray' : 'white',
       }}
     >
-      <h4 className='projectboxname'>{job_name}</h4>
+      <h4 className='projectboxname' style={{ backgroundColor: '#396a54', color: 'white', padding: '5px' }}>{job_name}</h4>
       <hr className='namelinebreak'/>
       {employees.length === 0 ? (
         <p>No employees assigned</p>
@@ -53,12 +44,13 @@ const ProjectBox = ({ id, employees, job_name }) => {
             key={employee.id}
             id={employee.id}
             name={`${employee.first_name} ${employee.last_name}`}
-            number={`${employee.phone_number}`}
-            email={`${employee.email}`}
-            address={`${employee.address}`} />
+            number={employee.phone_number}
+            email={employee.email}
+            address={employee.address} />
         ))
       )}
       <h6 className='employee-count'>Employees: {employeeCount}</h6>
+
     </div>
   );
 };
