@@ -1,47 +1,123 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import ProjectBox from './ProjectBox';
-import Employee from './Employee';
+import axios from 'axios';
+import DraggableJobBox from './DraggableJobBox';
 import './EmployeeStyles.css';
 import './Scheduling.css';
 
 const Scheduling = () => {
   const dispatch = useDispatch();
-  const employeeCard = useSelector((state) => state.cardReducer);
-  const jobsBox = useSelector((state) => state.jobReducer);
+  const [isLoading, setIsLoading] = useState(true);
+  const projects = useSelector((state) => state.projectReducer);
+  const allEmployees = useSelector((state) => state.employeeReducer.employees);
 
   useEffect(() => {
-    dispatch({ type: 'FETCH_EMPLOYEE_CARD' });
-    dispatch({ type: 'FETCH_PROJECTS_WITH_EMPLOYEES' });
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        await dispatch({ type: 'FETCH_PROJECTS_WITH_EMPLOYEES' });
+        await dispatch({ type: 'FETCH_EMPLOYEE_INFO' });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
   }, [dispatch]);
 
-  const moveEmployee = (employeeId, targetProjectId) => {
-    dispatch({ type: 'MOVE_EMPLOYEE', payload: { employeeId, targetProjectId } });
-  };
+  const moveEmployee = useCallback((employeeId, targetProjectId, sourceUnionId, sourceProjectId) => {
+    dispatch({
+      type: 'MOVE_EMPLOYEE',
+      payload: { employeeId, targetProjectId, sourceUnionId }
+    });
+  }, [dispatch]);
+
+  const moveJob = useCallback(async (sourceIndex, targetIndex) => {
+    try {
+      // Update state first for immediate feedback
+      dispatch({
+        type: 'REORDER_PROJECTS',
+        payload: { sourceIndex, targetIndex }
+      });
+
+      // Get the updated order of project IDs
+      const orderedProjectIds = projects
+        .slice() // Create a copy of the array
+        .sort((a, b) => {
+          if (a.display_order === null) return 1;
+          if (b.display_order === null) return -1;
+          return a.display_order - b.display_order;
+        })
+        .map(project => project.id);
+
+      // Move the project in the ordered array
+      const [movedId] = orderedProjectIds.splice(sourceIndex, 1);
+      orderedProjectIds.splice(targetIndex, 0, movedId);
+
+      // Persist the new order to the database
+      await axios.put('/api/project/updateProjectOrder', {
+        orderedProjectIds
+      });
+    } catch (error) {
+      console.error('Error updating project order:', error);
+      // You might want to add error handling here, such as reverting the order in the UI
+    }
+  }, [dispatch, projects]);
+
+  const memoizedProjects = useMemo(() => {
+    // Sort projects by display_order, then by other criteria
+    return projects
+      .slice()
+      .sort((a, b) => {
+        // First sort by display_order
+        if (a.display_order !== null && b.display_order !== null) {
+          return a.display_order - b.display_order;
+        }
+        if (a.display_order === null) return 1;
+        if (b.display_order === null) return -1;
+
+        // Then by employee count if display_order is the same
+        const aEmployees = a.employees?.length || 0;
+        const bEmployees = b.employees?.length || 0;
+        if (aEmployees === 0 && bEmployees > 0) return 1;
+        if (aEmployees > 0 && bEmployees === 0) return -1;
+        
+        // Finally by ID if everything else is equal
+        return a.id - b.id;
+      })
+      .map(project => ({
+        ...project,
+        employees: allEmployees.filter(emp => emp.job_id === project.id)
+      }));
+  }, [projects, allEmployees]);
+
+  const totalAssignedEmployees = useMemo(() => {
+    return memoizedProjects.reduce((total, project) => total + project.employees.length, 0);
+  }, [memoizedProjects]);
+
+  const handlePrint = useCallback(() => {
+    window.print();
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="scheduling-container">
-      <div>
-        <h3>Employees</h3>
-        <div className="employee-list">
-          {employeeCard.map((employee) => (
-            <div key={employee.id} className="employee-item">
-              <Employee
-                id={employee.id}
-                name={`${employee.first_name} ${employee.last_name}`}
-                number={employee.phone_number}
-                email={employee.email}
-                address={employee.address}
-                unionName={employee.union_name}
-              />
-            </div>
-          ))}
-        </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h2 className="total-employees">Total Employees: {totalAssignedEmployees}</h2>
+        <button 
+          onClick={handlePrint}
+          className="btn"
+          style={{ marginLeft: 'auto' }}
+        >
+          Print Schedule
+        </button>
       </div>
-
       <div>
-        {/* <h3>Jobs</h3> */}
-        {!jobsBox || jobsBox.length === 0 || !Array.isArray(jobsBox) ? (
+        {!memoizedProjects || memoizedProjects.length === 0 ? (
           <table className="no-jobs-table">
             <tbody>
               <tr>
@@ -51,15 +127,15 @@ const Scheduling = () => {
           </table>
         ) : (
           <div className="jobs-container">
-            {jobsBox.map((job) => (
-              <div key={job.id} className="job-box">
-                <ProjectBox
-                  id={job.id}
-                  job_name={job.job_name}
-                  employees={job.employees}
-                  moveEmployee={moveEmployee}
-                />
-              </div>
+            {memoizedProjects.map((project, index) => (
+              <DraggableJobBox
+                key={project.id}
+                job={project}
+                index={index}
+                moveJob={moveJob}
+                moveEmployee={moveEmployee}
+                employees={project.employees}
+              />
             ))}
           </div>
         )}
@@ -68,4 +144,4 @@ const Scheduling = () => {
   );
 };
 
-export default Scheduling;
+export default React.memo(Scheduling);
