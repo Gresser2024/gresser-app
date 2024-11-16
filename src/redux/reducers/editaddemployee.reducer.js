@@ -3,6 +3,7 @@ const initialState = {
     last_name: '',
     employee_number: '',
     union_id: '',
+    union_name: '',
     employee_status: 0,
     phone_number: '',
     email: '',
@@ -12,14 +13,26 @@ const initialState = {
 const editEmployeeReducer = (state = initialState, action) => {
     switch (action.type) {
         case 'SET_EDIT_EMPLOYEE':
-            return action.payload;
+            return { ...state, ...action.payload }; // Set the state to the payload
+
         case 'EDIT_ONCHANGE':
+            // Update specific properties in the state
             return {
                 ...state,
                 [action.payload.property]: action.payload.value
             };
+
+        case 'UPDATE_UNION':
+            // Specifically handle union updates if needed
+            return {
+                ...state,
+                union_id: action.payload.union_id,
+                union_name: action.payload.union_name
+            };
+
         case 'EDIT_CLEAR':
             return initialState;
+
         default:
             return state;
     }

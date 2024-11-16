@@ -7,38 +7,51 @@ import ToggleEmployee from './ToggleEmployee';
 const AddEmployee = () => {
     const dispatch = useDispatch();
     const employees = useSelector((state) => state.addEmployeeReducer);
+    const unions = useSelector((state) => state.unionReducer); 
+    console.log("Union Reducer", unions)
 
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [employeeNumber, setEmployeeNumber] = useState('');
-    const [unionName, setUnionName] = useState(''); 
+    const [unionId, setUnionId] = useState(''); 
     const [phoneNumber, setPhoneNumber] = useState('');
     const [email, setEmail] = useState('');
     const [address, setAddress] = useState('');
+
 
     const history = useHistory();
 
     useEffect(() => {
         dispatch({ type: 'FETCH_EMPLOYEE_INFO' });
+        dispatch({ type: 'FETCH_UNION' }); 
     }, [dispatch]);
 
+   
     const handleSubmit = (event) => {
         event.preventDefault();
+        
+        // Find the selected union by its ID to get the union_name
+        const selectedUnion = unions.find(union => union.id === Number(unionId));
+        
         const newEmployee = {
             first_name: firstName,
             last_name: lastName,
             employee_number: employeeNumber,
-            union_name: unionName,
+            union_id: unionId, // use union_id when adding an employee
+            union_name: selectedUnion ? selectedUnion.union_name : "", // Include the union_name
             phone_number: phoneNumber,
             email,
             address
         };
+
+        console.log('Payload:', newEmployee); 
+
         dispatch({ type: 'ADD_EMPLOYEE_INFO', payload: newEmployee });
 
         setFirstName('');
         setLastName('');
         setEmployeeNumber('');
-        setUnionName('');
+        setUnionId('');
         setPhoneNumber('');
         setEmail('');
         setAddress('');
@@ -63,7 +76,7 @@ const AddEmployee = () => {
         setFirstName(dummyData.firstName);
         setLastName(dummyData.lastName);
         setEmployeeNumber(dummyData.employeeNumber);
-        setUnionName(dummyData.unionName);
+        setUnionId(dummyData.unionId);
         setPhoneNumber(dummyData.phoneNumber);
         setEmail(dummyData.email);
         setAddress(dummyData.address);
@@ -92,38 +105,41 @@ const AddEmployee = () => {
                     type="text"
                     name="last_name"
                     placeholder="Last Name"
-                    value={lastName}
+                    value={lastName || ""}
                     onChange={(event) => setLastName(event.target.value)}
                 />
                 <input
                     type="text"
                     name="first_name"
                     placeholder="First Name"
-                    value={firstName}
+                    value={firstName || ""}
                     onChange={(event) => setFirstName(event.target.value)}
                 />
                 <input
                     type="text"
                     name="employee_number"
                     placeholder="Employee Number"
-                    value={employeeNumber}
+                    value={employeeNumber || ""}
                     onChange={(event) => setEmployeeNumber(event.target.value)}
                 />
 
-            {/* <label htmlFor="union_name">Select Union:</label> */}
-            <select
-                id="union_name"
-                name="union_name"
-                value={unionName}
-                onChange={(event) => setUnionName(event.target.value)}
-            >
-                <option value="" disabled>Select a union</option>
-                <option value="21 - Bricklayers">21 - Bricklayers</option>
-                <option value="22 - Cement Masons/Finishers">22 - Cement Masons/Finishers</option>
-                <option value="23 - Laborers">23 - Laborers</option>
-                <option value="24 - Operators">24 - Operators</option>
-                <option value="25 - Carpenters">25 - Carpenters</option>
-            </select>
+
+
+<label htmlFor="union_name">Select Union:</label>
+                    <select
+                        id="union_name"
+                        name="union_name"
+                        value={unionId || ""}
+                        onChange={(event) => setUnionId(event.target.value)}
+                    >
+                        <option value="" disabled>Select a union</option>
+                        {unions.map((union) => (
+                            <option key={union.id} value={union.id}>
+                                {union.union_name}
+                            </option>
+                        ))}
+                    </select>
+
         </div>
 
 
@@ -177,7 +193,8 @@ const AddEmployee = () => {
                             <td>{emp.last_name}</td>
                             <td>{emp.first_name}</td>
                             <td>{emp.employee_number}</td>
-                            <td>{emp.union_name}</td>
+                            <td>{emp.union_name}
+                            {console.log(" union name:", emp.union_name,  "union_id: ",emp.union_id)}</td>
                             <td>
                                 <ToggleEmployee emp={emp} />
                             </td>
