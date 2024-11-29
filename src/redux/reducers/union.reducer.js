@@ -1,10 +1,12 @@
-const unionReducer = (state = [], action) => {
-    switch (action.type) {
-        case 'SET_EMPLOYEE_UNION':
-            return action.payload;
-        default:
-            return state;
-    }
-};
-
-export default unionReducer;
+// unionsReducer.js
+// const unionsReducer = (state = [], action) => {
+//     switch (action.type) {
+//       case 'SET_UNIONS':
+//         return action.payload;
+//       default:
+//         return state;
+//     }
+//   };
+  
+//   export default unionsReducer;
+  

@@ -1,47 +1,52 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import ProjectBox from './ProjectBox';
-import Employee from './Employee';
+import DraggableJobBox from './DraggableJobBox';
 import './EmployeeStyles.css';
 import './Scheduling.css';
 
 const Scheduling = () => {
   const dispatch = useDispatch();
-  const employeeCard = useSelector((state) => state.cardReducer);
-  const jobsBox = useSelector((state) => state.jobReducer);
+  const [isLoading, setIsLoading] = useState(true);
+  const projects = useSelector((state) => state.projectReducer);
+  const allEmployees = useSelector((state) => state.employeeReducer.employees);
 
   useEffect(() => {
-    dispatch({ type: 'FETCH_EMPLOYEE_CARD' });
-    dispatch({ type: 'FETCH_PROJECTS_WITH_EMPLOYEES' });
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        await dispatch({ type: 'FETCH_PROJECTS_WITH_EMPLOYEES' });
+        await dispatch({ type: 'FETCH_EMPLOYEE_INFO' });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
   }, [dispatch]);
 
-  const moveEmployee = (employeeId, targetProjectId) => {
-    dispatch({ type: 'MOVE_EMPLOYEE', payload: { employeeId, targetProjectId } });
-  };
+  const moveEmployee = useCallback((employeeId, targetProjectId, sourceUnionId, sourceProjectId) => {
+    dispatch({
+      type: 'MOVE_EMPLOYEE',
+      payload: { employeeId, targetProjectId, sourceUnionId }
+    });
+  }, [dispatch]);
+
+  const memoizedProjects = useMemo(() => {
+    return projects.map(project => ({
+      ...project,
+      employees: allEmployees.filter(emp => emp.job_id === project.id)
+    }));
+  }, [projects, allEmployees]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="scheduling-container">
       <div>
-        <h3>Employees</h3>
-        <div className="employee-list">
-          {employeeCard.map((employee) => (
-            <div key={employee.id} className="employee-item">
-              <Employee
-                id={employee.id}
-                name={`${employee.first_name} ${employee.last_name}`}
-                number={employee.phone_number}
-                email={employee.email}
-                address={employee.address}
-                unionName={employee.union_name}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        {/* <h3>Jobs</h3> */}
-        {!jobsBox || jobsBox.length === 0 || !Array.isArray(jobsBox) ? (
+        {!memoizedProjects || memoizedProjects.length === 0 ? (
           <table className="no-jobs-table">
             <tbody>
               <tr>
@@ -51,15 +56,14 @@ const Scheduling = () => {
           </table>
         ) : (
           <div className="jobs-container">
-            {jobsBox.map((job) => (
-              <div key={job.id} className="job-box">
-                <ProjectBox
-                  id={job.id}
-                  job_name={job.job_name}
-                  employees={job.employees}
-                  moveEmployee={moveEmployee}
-                />
-              </div>
+            {memoizedProjects.map((project, index) => (
+              <DraggableJobBox
+                key={project.id}
+                job={project}
+                index={index}
+                moveEmployee={moveEmployee}
+                employees={project.employees}
+              />
             ))}
           </div>
         )}
@@ -68,4 +72,4 @@ const Scheduling = () => {
   );
 };
 
-export default Scheduling;
+export default React.memo(Scheduling);
