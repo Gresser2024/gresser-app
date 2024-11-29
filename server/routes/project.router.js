@@ -13,7 +13,10 @@ router.get('/withEmployees', async (req, res) => {
           jobs.job_name AS job_name, 
           add_employee.id AS employee_id, 
           add_employee.first_name AS employee_first_name,
-          add_employee.last_name AS employee_last_name
+          add_employee.last_name AS employee_last_name,
+          add_employee.phone_number AS employee_phone_number,
+          add_employee.email AS employee_email,
+          add_employee.address AS employee_address
         FROM jobs
         LEFT JOIN add_employee ON jobs.job_id = add_employee.job_id
         ORDER BY jobs.job_id, add_employee.id;
@@ -37,8 +40,11 @@ router.get('/withEmployees', async (req, res) => {
           jobs[row.job_id].employees.push({
             id: row.employee_id,
             first_name: row.employee_first_name,
-            last_name: row.employee_last_name
-          });
+            last_name: row.employee_last_name,
+            phone_number: row.employee_phone_number,
+            email: row.employee_email,
+            address: row.employee_address
+                    });
         }
       });
       

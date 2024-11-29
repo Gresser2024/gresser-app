@@ -1,55 +1,32 @@
 .scheduling-container {
-  display: flex;
-  flex-direction: column;
-  padding: 2px;
-  width: 100%;
+  padding: 20px;
 }
 
 .jobs-container {
   display: flex;
   flex-wrap: wrap;
+  gap: 20px;
   justify-content: flex-start;
-  max-width: 100%;
 }
 
-.job-box {
-  flex: 0 0 5%;
-  box-sizing: border-box;
-  padding: 5px;
-  margin: 5px;
+.draggable-job-box {
+  flex: 0 0 auto;
+  margin-bottom: 20px;
 }
 
-.no-jobs-table {
-  width: 100%;
-  text-align: center;
+.draggable-job-box:active {
+  cursor: grabbing;
 }
 
-.breakline {
-  margin: 0px 0;
-  margin-bottom: 0px;
+.projectboxname {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.namelinebreak, .breakline {
+  margin: 5px 0;
 }
 
 .employee-count {
-  margin-bottom: -5px;
-  margin-left: -5px;
-  margin-right: -5px;
-  text-align: end;
-  padding-right: 5px;
-  background-color: rgb(45, 36, 36);
-  color: white;
-  font-size:small;
-
+  margin-bottom: 0;
 }
-
-.projectboxname{
-  margin-top: -5px;
-  margin-bottom: -15px;    
-  background: #396a54;
-  color: white;
-  font-weight: 500;
-  font-size: medium;
-  margin-left: -5px;
-  margin-right: -5px;
-  text-align: center;
-}
-

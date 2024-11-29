@@ -47,14 +47,24 @@ function* fetchProjectsWithEmployees() {
 
 function* handleMoveEmployee(action) {
   try {
-    const { employeeId, targetProjectId } = action.payload;
-    yield call(axios.post, '/api/moveEmployee', { employeeId, targetProjectId });
-    yield put({ type: 'FETCH_PROJECTS_WITH_EMPLOYEES' });
-    yield put({ type: 'FETCH_EMPLOYEE_CARD' });
+      const { employeeId, targetProjectId, targetUnionId } = action.payload;
+
+      // Make an API call to move the employee
+      yield call(axios.post, '/api/moveEmployee', { 
+          employeeId, 
+          targetProjectId, 
+          targetUnionId 
+      });
+
+      // Fetch updated projects and employee card information 
+      yield put({ type: 'FETCH_PROJECTS_WITH_EMPLOYEES' });
+      yield put({ type: 'FETCH_EMPLOYEE_CARD' });
+      yield put({ type: 'FETCH_UNIONS_WITH_EMPLOYEES' });
   } catch (error) {
-    yield put({ type: 'MOVE_EMPLOYEE_FAILURE', error }); 
+      yield put({ type: 'MOVE_EMPLOYEE_FAILURE', error });
   }
 }
+
 
 
 function* statusToggle(action) {

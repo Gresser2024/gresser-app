@@ -5,16 +5,26 @@ const { rejectUnauthenticated } = require('../modules/authentication-middleware'
 
 
 router.post('/', rejectUnauthenticated, async (req, res) => {
-    const { employeeId, targetProjectId } = req.body;
-    console.log('Request Body:', req.body); 
+    const { employeeId, targetProjectId, targetUnionId } = req.body;
 
     try {
         await pool.query('BEGIN');
 
-        const result = await pool.query(
-            'UPDATE "add_employee" SET "job_id" = $1 WHERE "id" = $2',
-            [targetProjectId, employeeId]
-        );
+        // Check if we are moving to a project or a union
+        let result;
+        if (targetProjectId) {
+            result = await pool.query(
+                'UPDATE "add_employee" SET "job_id" = $1, "union_id" = NULL WHERE "id" = $2',
+                [targetProjectId, employeeId]
+            );
+        } else if (targetUnionId) {
+            result = await pool.query(
+                'UPDATE "add_employee" SET "union_id" = $1, "job_id" = NULL WHERE "id" = $2',
+                [targetUnionId, employeeId]
+            );
+        } else {
+            throw new Error('No target specified');
+        }
 
         if (result.rowCount === 0) {
             throw new Error('Employee not found');
