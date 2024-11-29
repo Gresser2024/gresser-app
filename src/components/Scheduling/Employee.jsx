@@ -1,74 +1,153 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useDrag } from 'react-dnd';
+import unionColors from '../Trades/UnionColors';
 
-
-const Employee = ({ id, name, number, email, address }) => {
-  console.log('Employee ID:', id);
-  console.log('Employee Name:', name);
-  console.log('Employee number', number)
-  console.log('Employee email', email)
-  console.log('Employee address', address)
-
-
+const Employee = ({
+  id,
+  name,
+  phone_number,
+  email,
+  address,
+  union_id,
+  union_name,
+  current_location,
+  isHighlighted,
+  onClick,
+  index,
+  onReorder,
+  projectId
+}) => {
+  const unionColor = unionColors[union_name] || 'black';
+  const isPrinting = window.matchMedia('print').matches;
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'EMPLOYEE',
-    item: { id: id },
+    item: { 
+      id, 
+      union_id, 
+      union_name, 
+      current_location, 
+      index,
+      projectId
+    },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
-  }));
+  }), [id, union_id, union_name, current_location, index, projectId]);
 
-// Unique ID for each modal
-  const modalId = `employee-modal-${id}`; 
+  const handleDragStart = (e) => {
+    e.dataTransfer.effectAllowed = 'move';
+  };
 
- 
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    return false;
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'));
+    if (draggedIndex !== index) {
+      onReorder(draggedIndex, index);
+    }
+  };
+
+  const handleDragEnd = () => {
+    // Clean up if needed
+  };
+
+  const handleContextMenu = useCallback((e) => {
+    e.preventDefault();
+    if (isHighlighted) {
+      onClick(id, isHighlighted);
+    }
+  }, [id, isHighlighted, onClick]);
+
+  const modalId = `employee-modal-${id}`;
+
+  const containerStyles = {
+    opacity: isDragging ? 0.5 : 1,
+    padding: isPrinting ? '3px 0' : '1px',
+    margin: isPrinting ? '2px 0' : '-8px 0 0 2px',
+    marginTop: index === 0 ? (isPrinting ? '6px' : '4px') : undefined, // Add margin to first employee
+    cursor: 'move',
+    borderRadius: '4px',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    backgroundColor: isHighlighted ? 'yellow' : (isDragging ? '#f0f0f0' : 'transparent'),
+    breakInside: 'avoid',
+    pageBreakInside: 'avoid',
+    minHeight: isPrinting ? '14pt' : 'auto',
+    display: 'block',
+    position: 'relative',
+    marginBottom: isPrinting ? '3px' : undefined
+  };
+
+  const nameStyles = {
+    color: unionColor,
+    margin: isPrinting ? '3px 0' : undefined,
+    padding: isPrinting ? '2px 0' : undefined,
+    fontSize: isPrinting ? '7pt' : undefined,
+    lineHeight: isPrinting ? '1.5' : undefined,  // Increased line height
+    display: 'block',
+    minHeight: isPrinting ? '12pt' : 'auto',  // Increased minimum height
+    position: 'relative'  // Added
+  };
+  
   return (
     <div
       ref={drag}
-      style={{
-        opacity: isDragging ? 0.5 : 1,
-        padding: '1px',
-        margin: '-8px 0 0 2px',
-        // border: '1px solid white',
-        cursor: 'move',
-        // backgroundColor: 'white',
-        borderRadius: '4px',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
+      draggable
+      onContextMenu={handleContextMenu}
+      onDragStart={(e) => {
+        handleDragStart(e);
+        e.dataTransfer.setData('text/plain', index.toString());
       }}
+      onDragOver={handleDragOver}
+      onDragEnter={handleDragEnter}
+      onDrop={handleDrop}
+      onDragEnd={handleDragEnd}
+      style={containerStyles}
     >
- <h6
+      <h6
         className="primary"
         data-toggle="modal"
         data-target={`#${modalId}`}
+        style={nameStyles}
       >
         {name}
       </h6>
 
-      <div className="modal fade" id={modalId} tabIndex="-1" role="dialog" aria-labelledby={`${modalId}-label`} aria-hidden="true">
-        <div className="modal-dialog" role="document">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id={`${modalId}-label`}>Employee Name: {name}</h5>
-              <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div className="modal-body">
-              <p>Email: {email}</p>
-              <p>Number: {number}</p>
-              <p>Address: {address}</p>
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+      {!isPrinting && (
+        <div className="modal fade" id={modalId} tabIndex="-1" role="dialog" aria-labelledby={`${modalId}-label`} aria-hidden="true">
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id={`${modalId}-label`}>Employee Name: {name}</h5>
+                <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <p>Email: {email || 'N/A'}</p>
+                <p>Number: {phone_number || 'N/A'}</p>
+                <p>Address: {address || 'N/A'}</p>
+                <p>Union: {union_name || 'N/A'}</p>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
 
-export default Employee;
+export default React.memo(Employee);
