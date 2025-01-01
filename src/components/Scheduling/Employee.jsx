@@ -1,52 +1,75 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useDrag } from 'react-dnd';
+import unionColors from '../Trades/UnionColors';
 
-
-const Employee = ({ id, name, number, email, address }) => {
-  console.log('Employee ID:', id);
-  console.log('Employee Name:', name);
-  console.log('Employee number', number)
-  console.log('Employee email', email)
-  console.log('Employee address', address)
-
-
-
+const Employee = ({
+  id,
+  employee_id,
+  name,
+  phone_number,
+  email,
+  address,
+  union_id,
+  union_name,
+  current_location,
+  isHighlighted,
+  onClick,
+  index,
+  onReorder,
+  projectId
+}) => {
+  const actualId = employee_id || id; 
+  const unionColor = unionColors[union_name] || 'black';
+  
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'EMPLOYEE',
-    item: { id: id },
+    item: {  
+      id: actualId,
+      employee_id: actualId,
+      union_id, 
+      union_name, 
+      current_location, 
+      index,
+      projectId
+    },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
-  }));
+  }), [actualId, union_id, union_name, current_location, index, projectId]);
+  
+  const handleContextMenu = useCallback((e) => {
+    e.preventDefault();
+    if (isHighlighted && typeof onClick === 'function') {
+      onClick(actualId, isHighlighted);
+    }
+  }, [actualId, isHighlighted, onClick]);
 
-// Unique ID for each modal
-  const modalId = `employee-modal-${id}`; 
-
- 
+  const modalId = `employee-modal-${actualId}`;
+  
   return (
     <div
       ref={drag}
+      onContextMenu={handleContextMenu}
       style={{
         opacity: isDragging ? 0.5 : 1,
         padding: '1px',
         margin: '-8px 0 0 2px',
-        // border: '1px solid white',
         cursor: 'move',
-        // backgroundColor: 'white',
         borderRadius: '4px',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
+        backgroundColor: isHighlighted ? 'yellow' : (isDragging ? '#f0f0f0' : 'transparent'),
       }}
     >
- <h6
+      <h6
         className="primary"
         data-toggle="modal"
         data-target={`#${modalId}`}
+        style={{ color: unionColor }}
       >
         {name}
       </h6>
-
       <div className="modal fade" id={modalId} tabIndex="-1" role="dialog" aria-labelledby={`${modalId}-label`} aria-hidden="true">
         <div className="modal-dialog" role="document">
           <div className="modal-content">
@@ -57,9 +80,10 @@ const Employee = ({ id, name, number, email, address }) => {
               </button>
             </div>
             <div className="modal-body">
-              <p>Email: {email}</p>
-              <p>Number: {number}</p>
-              <p>Address: {address}</p>
+              <p>Email: {email || 'N/A'}</p>
+              <p>Number: {phone_number || 'N/A'}</p>
+              <p>Address: {address || 'N/A'}</p>
+              <p>Union: {union_name || 'N/A'}</p>
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -71,4 +95,4 @@ const Employee = ({ id, name, number, email, address }) => {
   );
 };
 
-export default Employee;
+export default React.memo(Employee);

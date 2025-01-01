@@ -8,7 +8,6 @@ import {
 
 import { DndProvider } from 'react-dnd';
 
-
 import { useDispatch, useSelector } from 'react-redux';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -17,12 +16,12 @@ import Footer from '../Footer/Footer';
 
 import ProtectedRoute from '../ProtectedRoute/ProtectedRoute';
 
+import RegisterPage from '../RegisterPage/RegisterPage';
+
 import AboutPage from '../AboutPage/AboutPage';
 import UserPage from '../UserPage/UserPage';
 import InfoPage from '../InfoPage/InfoPage';
-// import LandingPage from '../LandingPage/LandingPage';
 import LoginPage from '../LoginPage/LoginPage';
-// import RegisterPage from '../RegisterPage/RegisterPage';
 import AddEmployee from '../AddEmployee/AddEmployee';
 import EditEmployee from '../AddEmployee/EditAddEmployee';
 import CreateJobs from '../CreateJobs/CreateJobs';
@@ -31,10 +30,6 @@ import JobHistory from '../JobHistory/JobHistory';
 import DragDrop from '../SaveDrag/SaveDrag';
 import Scheduling from '../Scheduling/Scheduling';
 import Trades from '../Trades/Trades';
-
-
-
-
 
 import './App.css';
 
@@ -45,6 +40,15 @@ function App() {
 
   useEffect(() => {
     dispatch({ type: 'FETCH_USER' });
+
+    // // Load highlighted employees from localStorage
+    // const highlightedEmployees = JSON.parse(localStorage.getItem('highlightedEmployees') || '{}');
+    // dispatch({ type: 'INITIALIZE_HIGHLIGHTED_EMPLOYEES', payload: highlightedEmployees });
+
+    // Clear highlights when the app unmounts
+    return () => {
+      dispatch({ type: 'CLEAR_ALL_HIGHLIGHTS' });
+    };
   }, [dispatch]);
 
   return (
@@ -59,12 +63,11 @@ function App() {
           </Route>
 
           <ProtectedRoute exact path="/user">
-          <DndProvider backend={HTML5Backend}>
-              
-          <div className="parent-container">
-          <Scheduling />
-          <Trades />
-        </div>
+            <DndProvider backend={HTML5Backend}>
+              <div className="parent-container">
+                <Scheduling />
+                <Trades />
+              </div>
             </DndProvider>
           </ProtectedRoute>
 
@@ -76,10 +79,8 @@ function App() {
             {user.id ? <Redirect to="/user" /> : <LoginPage />}
           </Route>
 
-{/*           <Route exact path="/registration">
-            {user.id ? <Redirect to="/user" /> : <RegisterPage />}
-          </Route> */}
-
+          <Route exact path="/registration">  {user.id ? <Redirect to="/user" /> : <RegisterPage />}  </Route>
+          
           <Route exact path="/home">
             {user.id ? <Redirect to="/user" /> : <LoginPage />}
           </Route>
@@ -99,34 +100,23 @@ function App() {
           </ProtectedRoute>
 
           <ProtectedRoute exact path="/jobhistory">
-            <JobHistory /> 
-
+            <JobHistory />
           </ProtectedRoute>
-
-
-          
-
-
 
           <Route exact path="/trades">
             <DndProvider backend={HTML5Backend}>
-              
             </DndProvider>
           </Route>
 
-
-
-
-
-
           <ProtectedRoute exact path="/scheduling">
-      <DndProvider backend={HTML5Backend}>
-        <div className="parent-container">
-          <Scheduling />
-          <Trades />
-        </div>
-      </DndProvider>
-    </ProtectedRoute>
+            <DndProvider backend={HTML5Backend}>
+              <div className="parent-container">
+                <Scheduling />
+                <Trades />
+              </div>
+            </DndProvider>
+          </ProtectedRoute>
+
           <Route>
             <h1>404</h1>
           </Route>

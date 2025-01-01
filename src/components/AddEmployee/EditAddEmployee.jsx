@@ -7,9 +7,14 @@ function EditEmployee() {
     const dispatch = useDispatch();
     const history = useHistory();
     const editEmployee = useSelector((store) => store.editEmployeeReducer);
+    console.log("editEmployee reducer",editEmployee)
+    const unions = useSelector((store) => store.unionReducer);
+    console.log("union reducer DAta",unions)
+
+    
 
     useEffect(() => {
-        dispatch({ type: "FETCH_EMPLOYEE" });
+        dispatch({ type: "FETCH_EMPLOYEE_INFO" });
     }, [dispatch]);
 
     const handleChange = (event, property) => {
@@ -19,12 +24,24 @@ function EditEmployee() {
         });
     };
 
-    const handleUnionID = (event) => {
-        dispatch({
-            type: 'EDIT_ONCHANGE',
-            payload: {property:'unionName',value:event.target}
-        })
-    }
+    const handleUnionChange = (event) => {
+        const selectedUnionId = event.target.value; 
+        console.log("Selected Union ID:", selectedUnionId); // Log the selected union ID
+
+        const selectedUnion = unions.find(union => union.id === Number(selectedUnionId)); 
+    
+        // Dispatch both union_id and union_name to the Redux store
+        if (selectedUnion) {
+            dispatch({
+                type: 'UPDATE_UNION',
+                payload: {
+                    union_id: selectedUnion.id, 
+                    union_name: selectedUnion.union_name 
+                }
+            });
+        }
+    };
+    
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -80,7 +97,7 @@ function EditEmployee() {
                             value={editEmployee.employee_number}
                             onChange={(event) => handleChange(event, 'employee_number')}
                         />
-                    </label>
+                          </label>
                 </div>
                 {/* <div>
                     <label>
@@ -96,18 +113,20 @@ function EditEmployee() {
                 </div> */}
                 <div>
                 <select
-                id="union_name"
-                name="union_name"
-                value={editEmployee.unionName}
-                onChange={(event) => handleUnionID(event.target)}
-            >
-                <option value="" disabled>Select a union</option>
-                <option value="21 - Bricklayers">21 - Bricklayers</option>
-                <option value="22 - Cement Masons/Finishers">22 - Cement Masons/Finishers</option>
-                <option value="23 - Laborers">23 - Laborers</option>
-                <option value="24 - Operators">24 - Operators</option>
-                <option value="25 - Carpenters">25 - Carpenters</option>
-            </select>
+    id="union_id"
+    name="union_id"
+    value={editEmployee.union_id}
+    onChange={(event) => handleUnionChange(event, 'union_id')}
+>
+    <option value="" disabled>Select a union</option>
+    {unions.map((union) => (
+        <option key={union.id} value={union.id}>
+            {union.union_name}
+            {console.log("union_names:", union.union_name, "union_id:", union.union_id)}
+        </option>
+    ))}
+</select>
+
                 </div>
                 <div>
                     <label>
