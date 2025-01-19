@@ -20,22 +20,30 @@ const JobHistory = () => {
     axios.get(url)
       .then(response => {
         setJobs(response.data);
+        console.log("response.data", response.data);
       })
       .catch(error => {
         console.error('Error fetching jobs:', error);
       });
   };
 
-  const formatDate = (dateString) => {
+  const formatProjectDate = (dateString) => {
     return new Date(dateString).toLocaleDateString();
   };
 
+  const formatDate = (dateString) => {
+    // Parse the date string to avoid timezone offset issues
+    const [year, month, day] = dateString.split('-');
+    const localDate = new Date(year, month - 1, day);
+    return localDate.toLocaleDateString();
+  };
+  
   const renderEmployees = (employees) => {
     if (employees && employees.length > 0) {
       return (
         <ul>
           {employees.map((employee) => (
-            <li key={employee.id}>
+            <li key={employee.employee_id}>
               {employee.first_name} {employee.last_name}
             </li>
           ))}
@@ -47,21 +55,20 @@ const JobHistory = () => {
   };
 
   const renderRainDays = (rainDays) => {
-    if (rainDays && rainDays.length > 0) {
-      return (
-        <ul>
-          {rainDays.map((rainDay) => (
-            <li key={rainDay.date}>
-              {formatDate(rainDay.date)}
-            </li>
-          ))}
-        </ul>
-      );
-    } else {
-      return <span>No rain days</span>;
-    }
+    const uniqueDates = [...new Set(rainDays.map(day => day.date))];
+    console.log("uniqueDate", uniqueDates);
+  
+    return uniqueDates.length > 0 ? (
+      <ul>
+        {uniqueDates.map((date) => (
+          <li key={date}>{formatDate(date)}</li>
+        ))}
+      </ul>
+    ) : (
+      <span>No rain days</span>
+    );
   };
-
+  
   const rainCheckBox = (jobId) => {
     axios.post('/api/jobhistory/rainday', { jobId, date: filterDate })
       .then(() => {
@@ -133,7 +140,7 @@ const JobHistory = () => {
         <tbody className="history-tbody">
           {jobs.length === 0 ? (
             <tr>
-              <td colSpan="8">No Projects occurred on this day</td>
+              <td colSpan="8">No projects available</td>
             </tr>
           ) : (
             jobs.map((job) => (
@@ -141,18 +148,15 @@ const JobHistory = () => {
                 <td>{job.job_number}</td>
                 <td>{job.job_name}</td>
                 <td>{job.location}</td>
-                <td>{formatDate(job.start_date)}</td>
-                <td>{formatDate(job.end_date)}</td>
-                <td>{job.status ? 'Active' : 'Inactive'}</td>
+                <td>{formatProjectDate(job.start_date)}</td>
+                <td>{formatProjectDate(job.end_date)}</td>
+                <td>{job.status}</td>
                 <td>{renderEmployees(job.employees)}</td>
                 <td>{renderRainDays(job.rain_days)}</td>
                 {filterDate && (
                   <td>
-                    <input
-                      type="checkbox"
-                      checked={job.rain_days.some(function(rd) {
-                        return formatDate(rd.date) === formatDate(filterDate);
-                      })}
+                    <input 
+                      type="checkbox" 
                       onChange={() => rainCheckBox(job.job_id)}
                     />
                   </td>
@@ -163,34 +167,13 @@ const JobHistory = () => {
         </tbody>
       </table>
       {report && (
-        <div className="report-container">
-          <div className="report-content">
-            <h2>Report</h2>
-            <table className="report-table">
-              <tbody>
-                <tr>
-                  <td>Total Projects:</td>
-                  <td>{report.totalJobs}</td>
-                </tr>
-                <tr>
-                  <td>Total Employees:</td>
-                  <td>{report.totalEmployees}</td>
-                </tr>
-                <tr>
-                  <td>Total Rain Days:</td>
-                  <td>{report.totalRainDays}</td>
-                </tr>
-                <tr>
-                  <td>Average Employees per Job:</td>
-                  <td>{report.averageEmployeesPerJob}</td>
-                </tr>
-                <tr>
-                  <td>Total Estimated Hours:</td>
-                  <td>{report.totalEstimatedHours}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div className="report">
+          <h2>Report</h2>
+          <p>Total Jobs: {report.totalJobs}</p>
+          <p>Total Employees: {report.totalEmployees}</p>
+          <p>Total Rain Days: {report.totalRainDays}</p>
+          <p>Average Employees per Job: {report.averageEmployeesPerJob}</p>
+          <p>Total Estimated Hours: {report.totalEstimatedHours}</p>
         </div>
       )}
     </div>

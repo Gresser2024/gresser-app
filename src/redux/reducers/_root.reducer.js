@@ -5,10 +5,12 @@ import addEmployeeReducer from './addemployee.reducer';
 import editEmployeeReducer from './editaddemployee.reducer';
 import editJobReducer from './editjob.reducer';
 import jobReducer from './job.reducer';
-import cardReducer from './card.reducer';
-// import projectReducer from './project.reducer';
+// import cardReducer from './card.reducer';
+import employeeReducer from './employeeReducer';
+import projectReducer from './project.reducer';
 import unionReducer from './union.reducer';
 import unionBoxReducer from './unionBox.reducer';
+import scheduleReducer from './schedule.reducer';
 // rootReducer is the primary reducer for our entire project
 // It bundles up all of the other reducers so our project can use them.
 // This is imported in index.js as rootSaga
@@ -22,10 +24,12 @@ const rootReducer = combineReducers({
   editEmployeeReducer,
   editJobReducer,
   jobReducer,
-  cardReducer,
-  // projectReducer,
+  // cardReducer,
+  projectReducer,
   unionReducer,
   unionBoxReducer,
+  employeeReducer,
+  scheduleReducer
 });
 
 export default rootReducer;
