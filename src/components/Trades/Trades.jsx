@@ -4,19 +4,34 @@ import UnionBox from './UnionBox';
 import unionColors from './UnionColors';
 import './Trades.css';
 
-const Trades = () => {
+const Trades = ({ isEditable}) => {
     const dispatch = useDispatch();
     const unions = useSelector((state) => state.unionReducer);
     const unionBox = useSelector((state) => state.unionBoxReducer);
+    const selectedDate = useSelector((state) => state.scheduleReducer.selectedDate);
 
     useEffect(() => {
         dispatch({ type: 'FETCH_EMPLOYEE_UNION' });
-        dispatch({ type: 'FETCH_UNIONS_WITH_EMPLOYEES' });
-    }, [dispatch]);
+        dispatch({ 
+            type: 'FETCH_UNIONS_WITH_EMPLOYEES',
+            payload: { date: selectedDate }
+        });
+    }, [dispatch, selectedDate]);
 
+    const moveEmployee = (employeeId, targetProjectId, sourceUnionId) => {
+        dispatch({ 
+            type: 'MOVE_EMPLOYEE', 
+            payload: { 
+                employeeId, 
+                targetProjectId, 
+                sourceUnionId,
+                date: selectedDate
+            }
+        });
+    };
+    
     return (
         <div className="trades-container">
-            <h3 className='union-title'>Unions</h3>
             <div className="unions-container">
                 {unionBox.map(union => (
                     <div key={union.id} className="union-box">
@@ -25,6 +40,8 @@ const Trades = () => {
                             union_name={union.union_name}
                             employees={union.employees}
                             color={unionColors[union.union_name]} 
+                            moveEmployee={moveEmployee}
+                            isEditable={isEditable}
                         />
                     </div>
                 ))}
@@ -34,5 +51,3 @@ const Trades = () => {
 };
 
 export default Trades;
-
-

@@ -1,103 +1,166 @@
-.job-table,th, td {
-    margin-top: 55px;
-    border:3px solid rgb(14, 13, 13);
-      border-collapse: collapse;
-      padding-left: 40px;
-      padding-right: 40px;
-      margin-left: 100px;
-      margin-right: 50px;
+/* PROJECTS TABLE SPECIFIC STYLES */
+.projects-table, .projects-table th, .projects-table td {
+  margin-top: 0;
+  border: 3px solid rgb(14, 13, 13);
+  border-collapse: collapse;
+  padding: 8px 15px;
+  margin-left: 0;
+  margin-right: 0;
+}
 
-  }
+.projects-table {
+  width: 100%;
+  table-layout: auto;
+}
 
-  table {
-    width: 90%;
-  }
+/* Add specific column widths for PROJECTS table only */
+.projects-table th:nth-child(1), .projects-table td:nth-child(1) {
+  width: 45%;
+  min-width: 450px;
+}
 
-  th, td {
-    padding: .2em;
-    min-width: 1.5em;
-    margin-left: 150px;
-    text-align: center;
+.projects-table th:nth-child(2), .projects-table td:nth-child(2) {
+  width: 35%;
+  min-width: 380px;
+}
 
-  }
+.projects-table th:nth-child(3), .projects-table td:nth-child(3) {
+  width: 12%;
+  min-width: 90px;
+}
 
-  thead {
-    background: rgb(218, 221, 222);
-    color: black;
-    text-align: center;
-    
-  }
+.projects-table th:nth-child(4), .projects-table td:nth-child(4) {
+  width: 8%;
+  min-width: 70px;
+}
 
+.projects-table th, .projects-table td {
+  padding: 8px;
+  text-align: center;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
 
+.projects-table thead {
+  background: rgb(218, 221, 222);
+  color: black;
+  text-align: center;
+}
 
+.jobs-title{
+  text-align: center;
+  padding-bottom: 15px;
+  font-weight: 900;
+  margin-top: 25px;
+}
 
-  .jobs-title{
-    text-align: center;
-    padding-bottom: 15px;
-    font-weight: 900;
-    margin-top: 25px;
+/* Container to hold form and table side by side with MORE SPACE */
+.jobs-container {
+  display: flex;
+  gap: 60px;
+  margin: 10px 120px;
+  align-items: flex-start;
+}
 
-  }
+/* Form styling */
+.jobs-form {
+  flex: 0 0 280px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
-   .job-Number{
-      margin-left: 25px;
-      font-weight: 600;
+/* Table container takes remaining space */
+.job-table-container {
+  flex: 1;
+  min-width: 0;
+}
 
-  } 
+/* Stack fields vertically */
+.job-id {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-  .job-name{
-      margin-left: 15px;
-      font-weight: 600;
+.job-id label {
+  font-weight: 600;
+  text-align: left;
+  margin-bottom: 3px;
+}
 
-  }
+.job-id input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
 
-  .job-location{
-    margin-left: 10px;
-    font-weight: 600;
-
-  }
-
-  .date-start{
-    margin-left: 10px;
-    font-weight: 600;
-
-  }
-
-  .date-end{
-    margin-left: 10px;
-    font-weight: 600;
-
-  }
-
-.job-button{
-  margin-left: 1275px;
+.job-button {
   margin-top: 15px;
+  width: 100%;
+  font-weight: 600;
+  padding: 10px;
+  background-color: #396a54;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
 
+.job-button:hover {
+  background-color: #2c543f;
+}
+
+/* Toggle button styles */
+.job-toggle {
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 1px solid #ddd;
 }
 
 .job-toggle.active {
   background-color: #396a54;
-  color: rgb(247, 243, 243);
+  color: white;
+  border-color: #2c543f;
 }
 
 .job-toggle.inactive {
   background-color: rgb(163, 42, 42);
   color: white;
+  border-color: rgb(143, 22, 22);
 }
 
-.job-edit{
+.job-toggle:hover {
+  opacity: 0.9;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.job-toggle.toggling {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.job-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.job-edit {
   color: rgb(9, 10, 16);
   font-weight: 600;
 }
-.job-delete{
+
+.job-delete {
   color: rgb(149, 21, 21);
   font-weight: 600;
 }
 
-.job-button{
-  font-weight: 600;
-}
-
+/* Edit form styles */
 .edit-job{
   text-align: center;
   font-weight: 700;
@@ -106,14 +169,14 @@
 }
 
 .edit-form{
-text-align: center;
-border: 2px solid hsl(0, 0%, 80%);
-    border-radius: 10px;
-    box-shadow: 10px 30px 10px hsla(0,0%,0%,0.1);
-    padding: 50px;
-    margin-left: 490px;
-    text-align: center;
-    max-width: 450px;
+  text-align: center;
+  border: 2px solid hsl(0, 0%, 80%);
+  border-radius: 10px;
+  box-shadow: 10px 30px 10px hsla(0,0%,0%,0.1);
+  padding: 50px;
+  margin-left: 490px;
+  text-align: center;
+  max-width: 450px;
 }
 
 .to-edit{
@@ -122,14 +185,7 @@ border: 2px solid hsl(0, 0%, 80%);
   font-size: large;
 }
 
-.job-form{
-  text-align: center;
-
-}
-
 .update-button{
   font-weight: 700;
   font-size: large;
-
 }
-

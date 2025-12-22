@@ -1,8 +1,9 @@
-
 const express = require('express');
 const pool = require('../modules/pool');
 const router = express.Router();
 const { rejectUnauthenticated } = require('../modules/authentication-middleware');
+const { validateDate } = require('../routes/date-validation.middleware');
+
 
 //Route to get all jobs
 router.get('/', (req, res) => {
@@ -32,7 +33,8 @@ router.get('/', (req, res) => {
         res.sendStatus(401);
     }
 });
-//Rooute to create a new job
+
+//Route to create a new job
 router.post('/', rejectUnauthenticated, (req, res) => {
     console.log('User is authenticated?:', req.isAuthenticated());
     console.log("Current user is:", req.user.username);
@@ -66,95 +68,108 @@ router.post('/', rejectUnauthenticated, (req, res) => {
         });
 });
 
-
-router.put('/:job_id', rejectUnauthenticated, (req, res) => {
-    
+router.put('/:job_id', rejectUnauthenticated, async (req, res) => {
     const jobId = req.params.job_id;
-   
     const { job_number, job_name, location, start_date, end_date, status } = req.body;
 
-  
-    if (status !== undefined &&
-        !job_number &&
-        !job_name &&
-        !location &&
-        !start_date &&
-        !end_date) {
+    const client = await pool.connect();
 
-        
-        const queryText = `
-            UPDATE "jobs"
-            SET "status" = $1
-            WHERE "job_id" = $2;
+    try {
+        await client.query('BEGIN');
+
+        // If only updating status
+if (status !== undefined &&
+    !job_number &&
+    !job_name &&
+    !location &&
+    !start_date &&
+    !end_date) {
+
+    const queryText = `
+        UPDATE "jobs"
+        SET "status" = $1
+        WHERE "job_id" = $2;
+    `;
+    console.log("Updating status with values:", { status, jobId });
+
+    await client.query(queryText, [status, jobId]);
+
+    // Get today's date in the central time zone
+    const centralTime = new Date().toLocaleString("en-US", {
+        timeZone: "America/Chicago"
+    });
+    const today = new Date(centralTime);
+    today.setHours(0, 0, 0, 0);
+    
+    // Format as YYYY-MM-DD
+    const formattedToday = today.toISOString().split('T')[0];
+    console.log("Using today's date for queries:", formattedToday);
+    
+    if (status === 'Inactive') {
+        // Only change current_location, keep job_id for "limbo" state
+        const moveEmployeesQuery = `
+            UPDATE schedule
+            SET current_location = 'union'
+            WHERE job_id = $1 
+            AND date >= $2;
         `;
-        console.log("Updating status with values:", { status, jobId });
-
-        pool.query(queryText, [status, jobId])
-            
-            .then(() => res.sendStatus(204))
-            .catch((error) => {
-                console.log('Error updating job status:', error);
-                res.sendStatus(500);
-            });
-    } else {
-        
-        const updateJob = [
-            job_number,
-            job_name,
-            location,
-            start_date,
-            end_date,
-            jobId,
-        ];
-
-        const sqlText = `
-            UPDATE "jobs"
-            SET "job_number" = $1,
-                "job_name" = $2,
-                "location" = $3,    
-                "start_date" = $4,
-                "end_date" = $5
-            WHERE "job_id" = $6;
+        await client.query(moveEmployeesQuery, [jobId, formattedToday]);
+        console.log("Updated employees to union for job", jobId, "from date", formattedToday);
+    } else if (status === 'Active') {
+        // Restore employees that were in "limbo" state
+        const restoreEmployeesQuery = `
+            UPDATE schedule
+            SET current_location = 'project'
+            WHERE job_id = $1 
+            AND date >= $2;
         `;
-        console.log("Updating job with values:", updateJob);
+        await client.query(restoreEmployeesQuery, [jobId, formattedToday]);
+        console.log("Restored employees to project for job", jobId, "from date", formattedToday);
+    }
 
-        pool.query(sqlText, updateJob)
-            .then((result) => {
-                if (result.rowCount > 0) {
-                    res.sendStatus(204);
-                } else {
-                    res.sendStatus(404);
-                }
-            })
-            .catch((error) => {
-                console.log("Error updating job:", error);
-                res.sendStatus(500);
-            });
+    await client.query('COMMIT');
+    res.sendStatus(204);
+} else {
+            // For full job updates
+            const queryText = `
+                UPDATE "jobs"
+                SET 
+                    "job_number" = $1,
+                    "job_name" = $2,
+                    "location" = $3,    
+                    "start_date" = $4,
+                    "end_date" = $5
+                WHERE "job_id" = $6
+                RETURNING *;
+            `;
+
+            const values = [
+                job_number,
+                job_name,
+                location,
+                start_date,
+                end_date,
+                jobId
+            ];
+
+            const result = await client.query(queryText, values);
+
+            await client.query('COMMIT');
+
+            if (result.rowCount > 0) {
+                res.sendStatus(204);
+            } else {
+                res.sendStatus(404);
+            }
+        }
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.log("Error updating job:", error);
+        res.status(500).send(error.message);
+    } finally {
+        client.release();
     }
 });
 
 
-
-router.delete('/:job_id', (req, res) => {
-    
-    const jobId = req.params.job_id;
-    console.log('Delete request for jobId', jobId);
-    const queryText = `
-        DELETE FROM "jobs"
-        WHERE "job_id" = $1;
-    `;
-    
-    pool.query(queryText, [jobId])
-        .then((result) => {
-            if (result.rowCount > 0) {
-                res.sendStatus(204);
-            } else {
-                res.sendStatus(403);
-            }
-        })
-        .catch((error) => {
-            console.log('error making query...', error);
-            res.sendStatus(500);
-        });
-});
 module.exports = router;

@@ -1,10 +1,29 @@
+/* /* Union Box Specific Styles
+-------------------------------------------------- */
+/* .union-boxes-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(190px, 1fr));
+  gap: 5px;
+  background-color: transparent;
+  float: right;
+  width: 400px;
+  margin-left: 20px;
+}
 
-  .small-text {
-    font-size: 16px;
-  }
+.union-box {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 2px;
+  background-color: transparent;
+}*/
 
-  .separator {
-    border-bottom: 1px solid black;
-    margin: 10px 0;
-  }
-  
+.union-box h4.small-text {
+  margin: -2px -2px 2px -2px;
+  padding: 3px;
+  font-size: 14px;
+  font-weight: 600;
+
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #ddd;
+} 
+
